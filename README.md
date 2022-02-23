@@ -7,12 +7,12 @@ Use Component Showcase to build a standalone page of all of your UI components.
 ## Usage
 
 1. In your repository, add `component-showcase` to your `package.json` file and `yarn add -D component-showcase` or `npm install -D component-showcase`.
-1. Next, create `component-showcase.config.js` in the root of your project. See the options [below](#component-showcase-config-js).
+1. Next, create `component-showcase.config.js` in the root of your project. See the options [below](#configuration-options).
 1. Finally, run `yarn component-showcase` or `yarn run component-showcase` from your project directory. When it's done, you will have a standalone HTML file at your `outputPath`.
 
-## `component-showcase.config.js`
+## Configuration Options
 
-This is a configuration file that belongs in the root of your project.
+`component-showcase.config.js` is a configuration file that belongs in the root of your project.
 
 ```js
 module.exports = {
