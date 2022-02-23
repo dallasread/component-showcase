@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{title}}</title>
+</head>
+<body>
+  <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/3.0.0/vue.cjs.js"></script> -->
+
+  <style type="text/css">
+    iframe {
+      position: fixed;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 12rem;
+      width: 100%;
+      height: 100vh;
+      border: 0;
+    }
+
+    .sidebar {
+      position: fixed;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      width: 12rem;
+      overflow: auto;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+      z-index: 999;
+    }
+  </style>
+
+  <div class="sidebar">
+    <h1>{{title}}</h1>
+    {{sidebar}}
+  </div>
+
+  <div class="content">
+    <iframe id="iframe" src="data:text/html,<p>Choose a component.</p>"></iframe>
+  </div>
+
+  <script type="text/javascript">
+    window.componentShowcase = {
+      iframe: document.getElementById('iframe'),
+      components: {{js-components}},
+      show(id) {
+        this.iframe.src = this.components[id].src
+      }
+    }
+  </script>
+</body>
+</html>
