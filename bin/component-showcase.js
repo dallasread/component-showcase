@@ -2,12 +2,15 @@
 
 const path = require('path')
 const fs = require('fs')
+const spawnSync = require('child_process').spawnSync
 const glob = require('glob')
 
 class ComponentShowcase {
   constructor (config) {
     this.config = config
+  }
 
+  generate () {
     this.log('')
     this.log('----------------------------------------------------------------')
     this.log(`------------------- Component Showcase v${ComponentShowcase.DEFAULTS.version} ------------------`)
@@ -20,18 +23,8 @@ class ComponentShowcase {
     }
 
     this.log('')
-  }
-
-  generate () {
-    this.log('Components:')
 
     this.findComponents()
-      .then((components) => {
-        components.forEach((c) => this.log('|-', this.simpleComponentPath(c)))
-        this.log('')
-        // yarn vue-cli-service build --target wc --name domain-input app/javascript/components/domain-input --inline-vue
-        return components
-      })
       .then((components) => this.generateIndex(components))
       .then(() => {
         this.log('🎉 Done! Your component showcase can be found at:')
@@ -41,11 +34,12 @@ class ComponentShowcase {
   }
 
   generateIndex (components) {
+    // components = [components[9]]
+
     const outputPath = path.join(this.config.cwd, this.config.outputPath)
     const output = fs
       .readFileSync(path.join(__dirname, '../templates/index.html')).toString()
       .replace(/\{\{title\}\}/g, this.config.title)
-      .replace(/\{\{stylesheet\}\}/g, this.config.defaultStylesheet)
       .replace(/\{\{sidebar\}\}/g, this.buildSidebar(components))
       .replace(/\{\{js-components\}\}/g, this.buildJSComponents(components))
 
@@ -72,15 +66,65 @@ class ComponentShowcase {
     return `<ul>${content}</ul>`
   }
 
-  buildJSComponents (components) {
-    const content = components.map((componentPath) => {
-      return `'${componentPath}': {
-        simplePath: '${this.simpleComponentPath(componentPath)}',
-        src: 'data:text/html,<link rel="stylesheet" type="text/css" href="${this.config.defaultStylesheet}"><p>${this.simpleComponentPath(componentPath)}</p>'
-      }`
-    }).join(',')
+  buildJSComponent (componentPath) {
+    const simplePath = this.simpleComponentPath(componentPath)
+    const tmpName = 'component-showcase'
+    const tmpDir = `tmp/${tmpName}`
+    const options = [
+      'vue-cli-service', 'build',
+      '--inline-vue',
+      // --report-json
+      // --watch
+      '--target', 'wc',
+      '--name', tmpName,
+      // '--formats', 'commonjs',
+      '--dest', tmpDir,
+      componentPath
+    ]
 
-    return `{${content}}`
+    this.log('|-', simplePath)
+
+    // this.log('  |-', options.join(' '))
+    // this.log('  ✓', 'building assets')
+    spawnSync('yarn', options)
+
+    // this.log('  ✓', 'assembling assets')
+    const js = fs.readFileSync(`${tmpDir}/${tmpName}.min.js`).toString()
+    const html = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>${simplePath}</title>
+      </head>
+      <body>
+        <link rel="stylesheet" type="text/css" href="${this.config.defaultStylesheet}">
+        <h1>${simplePath}</h1>
+        <component-showcase></component-showcase>
+        <script type="text/javascript">${js}</script>
+      </body>
+      </html>
+    `
+
+    return {
+      simplePath: simplePath,
+      html: btoa(unescape(encodeURIComponent(html)))
+    }
+  }
+
+  buildJSComponents (componentPaths) {
+    this.log('Components:')
+
+    const components = {}
+
+    const content = componentPaths.forEach((componentPath) => {
+      components[componentPath] = this.buildJSComponent(componentPath)
+    })
+
+    this.log('')
+
+    return JSON.stringify(components)
   }
 
   simpleComponentPath (componentPath) {

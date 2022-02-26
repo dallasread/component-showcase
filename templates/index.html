@@ -37,16 +37,23 @@
     {{sidebar}}
   </div>
 
-  <div class="content">
-    <iframe id="iframe" src="data:text/html,<p>Choose a component.</p>"></iframe>
-  </div>
+  <div id="content"></div>
 
   <script type="text/javascript">
     window.componentShowcase = {
-      iframe: document.getElementById('iframe'),
+      content: document.getElementById('content'),
       components: {{js-components}},
       show(id) {
-        this.iframe.src = this.components[id].src
+        const html = decodeURIComponent(escape(window.atob(this.components[id].html)))
+
+        const iframe = document.createElement('iframe')
+        this.content.innerHTML = ''
+        this.content.appendChild(iframe)
+
+        const doc = iframe.contentWindow.document
+        doc.open()
+        doc.write(html)
+        doc.close()
       }
     }
   </script>
