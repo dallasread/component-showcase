@@ -21,6 +21,6 @@ module.exports = {
   ignoreFileName: ['src/components', 'component.vue'], // Ignore words in your component paths for prettier names
   title: 'UI Components', // The title of the HTML page
   verbose: true // See the build progress
-  defaultStylesheet: 'asdf', // A stylesheet that will be applied to your components
+  stylesheets: ['http://example.com/style.css'], // Stylesheet URLs that will be applied to your components
 }
 ```

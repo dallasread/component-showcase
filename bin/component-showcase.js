@@ -88,6 +88,10 @@ class ComponentShowcase {
     // this.log('  ✓', 'building assets')
     spawnSync('yarn', options)
 
+    const stylesheets = this.config.stylesheets.map((stylesheet) => {
+      return `<link rel="stylesheet" type="text/css" href="${stylesheet}">`
+    }).join('')
+
     // this.log('  ✓', 'assembling assets')
     const js = fs.readFileSync(`${tmpDir}/${tmpName}.min.js`).toString()
     const html = `
@@ -97,9 +101,9 @@ class ComponentShowcase {
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>${simplePath}</title>
+        ${stylesheets}
       </head>
       <body>
-        <link rel="stylesheet" type="text/css" href="${this.config.defaultStylesheet}">
         <h1>${simplePath}</h1>
         <component-showcase></component-showcase>
         <script type="text/javascript">${js}</script>
@@ -165,7 +169,7 @@ ComponentShowcase.buildFromConfig = (cwd, configFileName) => {
     verbose: typeof options.verbose !== 'undefined' ? options.verbose : ComponentShowcase.DEFAULTS.verbose,
     outputPath: typeof options.outputPath !== 'undefined' ? options.outputPath : ComponentShowcase.DEFAULTS.outputPath,
     title: typeof options.title !== 'undefined' ? options.title : ComponentShowcase.DEFAULTS.title,
-    defaultStylesheet: typeof options.defaultStylesheet !== 'undefined' ? options.defaultStylesheet : ComponentShowcase.DEFAULTS.defaultStylesheet
+    stylesheets: typeof options.stylesheets !== 'undefined' ? options.stylesheets : ComponentShowcase.DEFAULTS.stylesheets
   })
 }
 
@@ -177,7 +181,7 @@ ComponentShowcase.DEFAULTS = {
   ignoreFileName: '',
   verbose: false,
   outputPath: './public/components.html',
-  defaultStylesheet: '',
+  stylesheets: [],
   title: ['Component Showcase']
 }
 
